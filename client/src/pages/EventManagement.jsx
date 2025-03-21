@@ -24,10 +24,47 @@ const EventManagement = () => {
     setFormData((prevData) => ({ ...prevData, requiredSkills: selectedOptions }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form Submitted:", formData);
-  };
+    try {
+        const response = await fetch("http://localhost:5001/api/events", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Event created:", data);
+        
+        // Display a success notification
+        alert(data.message);
+        
+        // Optionally clear the form
+        setFormData({
+            eventName: "",
+            eventDescription: "",
+            location: "",
+            requiredSkills: [],
+            urgency: "",
+            eventDate: "",
+        });
+        
+        // Navigate to the Events page or re-fetch events if stored in state
+        // For example, if you use react-router-dom:
+        // navigate("/events");
+    } catch (error) {
+        console.error("Error creating event:", error);
+        alert("Failed to create event.");
+    }
+};
+  
 
   return (
     <div className="container event-management-container text-center py-5">
